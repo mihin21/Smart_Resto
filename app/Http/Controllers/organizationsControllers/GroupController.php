@@ -1,14 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\organizationsControllers;
-
+// use App\Http\Controllers\organizationsControllers\Collection;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Session;
-use Illuminate\Database\Eloquent\Collection;
 use App\Models\Organization;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,8 +16,9 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
         $organization = Organization::whereRelation('User', 'uuid', '=', auth()->user()->uuid)->first();
         $backgrounds = Organization::all()->where('userId','=',Auth::user()->id);
         $groups = $organization->groups;
@@ -36,6 +34,12 @@ class GroupController extends Controller
             'backgrounds' => $backgrounds,
             'principalExist' => $principalExist
         ]);
+
+        $groups = Group::all();
+        $organization = Organization::whereRelation('User', 'uuid', '=', $request->session()->get('org__key'))->first();
+
+        return view('organization.groups.list', ['groups' => $groups],['organization' => $organization]);
+
     }
 
     /**
@@ -87,9 +91,9 @@ class GroupController extends Controller
      */
     public function show($id)
     {
-        $backgrounds = Organization::all()->where('userId','=',Auth::user()->id);
+
         $groups = Group::find($id);
-        return view('organization.groups.show', ['group' => $groups],['backgrounds' => $backgrounds]);
+        return view('organization.groups.show', ['group' => $groups]);
     }
 
     /**
@@ -100,9 +104,8 @@ class GroupController extends Controller
      */
     public function edit($id)
     {
-        $backgrounds = Organization::all()->where('userId','=',Auth::user()->id);
         $groups = Group::find($id);
-        return view('organization.groups.edit', ['group' => $groups],['backgrounds' => $backgrounds]);
+        return view('organization.groups.edit', ['group' => $groups]);
     }
 
     /**
@@ -129,7 +132,7 @@ class GroupController extends Controller
         Group::find($id)->update($inputs);
 
 
-        return redirect()->intended('org/groups')->with('success', 'Le groupe a été retiré avec succes');
+        return redirect()->intended('org/groups')->with('success', 'Les informations du groupe ont été modifié avec succes');
 
     }
 

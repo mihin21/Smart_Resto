@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Providers\RestaurantAdded;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -28,9 +27,9 @@ class RestaurantController extends Controller
     public function index()
     {
 
-        $restaurants = Restaurant::orderBy('id', 'Desc')->paginate(5);
+        $restaurants = Restaurant::orderBy('id','Desc')->paginate(5);
 
-        return view('organization.restaurant.list', compact('restaurants'));
+        return view('organization.restaurant.list',compact('restaurants'));
     }
 
     /**
@@ -58,7 +57,7 @@ class RestaurantController extends Controller
             'email',
             'phone',
         ]);
-        $password = substr(str_shuffle(Hash::make(Str::random(10))), 0, 15);
+        $password = substr(str_shuffle(Hash::make(Str::random(10))) , 0, 15);
         $input['password'] = Hash::make($password);
         $additionalInput = [
             'roleId' => 4,
@@ -191,13 +190,9 @@ class RestaurantController extends Controller
 
     public function destroy($id)
     {
-        DB::delete(
-            'delete from org_restos where organization_id =  ? and restaurant_id = ?',
-            [
-                auth()->user()->custom->id, $id
-            ]
-        );
-        return redirect()->back()->with('success', 'Le restaurant a été retiré avec succes');
+        $restaurants = Restaurant::find($id);
+        $restaurants->delete();
+        return redirect()->back()->with('success', 'La structure a été retiré avec succes');
     }
 
 
@@ -216,7 +211,7 @@ class RestaurantController extends Controller
     public function deleteCategory($id)
     {
         Category::destroy($id);
-        return back()->with('success', 'Catégorie supprimé avec succès!');
+        return redirect()->back()->with('success', 'Catégorie supprimé avec succès!');
     }
 
     public function showDish($id)
@@ -229,4 +224,7 @@ class RestaurantController extends Controller
         Dish::destroy($id);
         return redirect()->back()->with('dishSuccess', 'Le plat a été supprimé avec succès!');
     }
+
 }
+
+

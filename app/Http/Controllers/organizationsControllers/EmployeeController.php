@@ -24,7 +24,7 @@ class EmployeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $organization = Organization::whereRelation('User', 'uuid', '=', auth()->user()->uuid)->first();
         $employees = $organization->employees;
